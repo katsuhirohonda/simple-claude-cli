@@ -1,16 +1,10 @@
 use anthropic_ai_sdk::clients::AnthropicClient;
 use colored::*;
-use serde_json::Value;
-use std::collections::HashMap;
 
 use anthropic_ai_sdk::types::message::{
     CreateMessageParams, Message, MessageClient, MessageError, RequiredMessageParams, Role, Tool,
 };
-use std::sync::Arc;
-use tokio::sync::RwLock;
-use tracing::{debug, error};
-
-use tracing::info;
+use tracing::error;
 
 ///
 #[tokio::main]
@@ -91,7 +85,7 @@ async fn main() -> Result<(), std::io::Error> {
     //
 
     let meta_prompt = format!(
-            "You are an excellent software engineer.\n\
+        "You are an excellent software engineer.\n\
             There are four available reasoning methods:\n\
             1. Chain-of-Thought (CoT): Generate answers by thinking step by step.\n\
             2. Automatic Chain-of-Thought (Auto-CoT): The model explores effective reasoning paths on its own.\n\
@@ -100,7 +94,7 @@ async fn main() -> Result<(), std::io::Error> {
             First, determine which reasoning method is most appropriate and briefly explain why.\n\
             If there are past task execution procedures that are similar to the current problem, please analyze them before starting the task.\n\
             Then, considering both your chosen reasoning method and past task execution procedures, address the problem comprehensively.",
-        )
+    );
 
     let tool_notes = "Important notes regarding tool usage:\n\
         1. Avoid using the same tool consecutively.\n\
@@ -138,7 +132,10 @@ async fn main() -> Result<(), std::io::Error> {
                 e.to_string()
             );
             error!("Error: {:?}", e);
-            return Err(std::io::Error::new(std::io::ErrorKind::Other, e.to_string()));
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                e.to_string(),
+            ));
         }
     };
 
