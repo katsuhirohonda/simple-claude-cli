@@ -79,7 +79,10 @@ async fn main() -> Result<(), std::io::Error> {
         Ok(mut stream) => {
             while let Some(result) = stream.next().await {
                 match result {
-                    Ok(event) => info!("Received event: {:?}", event),
+                    Ok(event) => {
+                        info!("Received event: {:?}", event);
+                        println!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
+                    }
                     Err(e) => error!("Stream error: {}", e),
                 }
             }
@@ -88,29 +91,6 @@ async fn main() -> Result<(), std::io::Error> {
             error!("Error: {}", e);
         }
     }
-
-    let response = match anthropic_client.create_message(Some(&body)).await {
-        Ok(response) => {
-            //body.messages.push(Message::new_text(
-            //    Role::Assistant,
-            //    format!("{:?}", response.content),
-            //));
-            response
-        }
-        Err(e) => {
-            println!(
-                "{} {}: {}",
-                ">>>".red(),
-                "[Error]".red().bold(),
-                e.to_string()
-            );
-            error!("Error: {:?}", e);
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                e.to_string(),
-            ));
-        }
-    };
 
     Ok(())
 }
