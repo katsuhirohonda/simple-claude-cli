@@ -1215,7 +1215,7 @@ dependencies = [
 
 [[package]]
 name = "simple-claude-cli"
-version = "0.0.6"
+version = "0.0.7"
 dependencies = [
  "anthropic-ai-sdk",
  "colored",
