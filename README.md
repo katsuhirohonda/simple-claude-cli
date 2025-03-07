@@ -13,6 +13,7 @@ simple-claude-cli allows you to easily interact with Claude AI directly from you
 - Simple, intuitive interface
 - Uses Claude 3 Haiku by default
 - Customizable system prompts and predefined personas
+- **Conversation history** - maintains context throughout your session
 
 ## Prerequisites
 
@@ -57,7 +58,9 @@ export ANTHROPIC_API_KEY=your_api_key_here
 claude
 ```
 
-3. Enter your question or prompt when prompted.
+3. Enter your questions or prompts as in a normal conversation.
+
+4. Type `exit`, `quit`, or press Enter on an empty line to end the conversation.
 
 ## Configuration
 
@@ -66,10 +69,10 @@ You can customize Claude's behavior using environment variables:
 ### Change the Claude model
 
 ```bash
-export CLAUDE_MODEL="claude-3-opus-20240229"
+export CLAUDE_MODEL="claude-3-7-sonnet-20250219"
 ```
 
-By default, the application uses `claude-3-haiku-20240229`.
+By default, the application uses `claude-3-5-haiku-latest`.
 
 ### Custom system prompts
 

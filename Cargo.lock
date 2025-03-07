@@ -28,9 +28,9 @@ dependencies = [
 
 [[package]]
 name = "anthropic-ai-sdk"
-version = "0.1.3"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43eefe80a8022ff2a8a2cb501a5fd9c3744f50089164caa67edcaa5d3a224549"
+checksum = "0b39b2d617d18412aec77154941f4292ec645db8d5f6acb5df2173bed4efcc2c"
 dependencies = [
  "async-trait",
  "eventsource-stream",

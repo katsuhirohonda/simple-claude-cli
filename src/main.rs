@@ -6,7 +6,8 @@ use anthropic_ai_sdk::types::message::{
 };
 use colored::*;
 use futures_util::StreamExt;
-use tracing::error;
+use std::io::Write;
+use tracing::{error, info};
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
@@ -21,16 +22,13 @@ async fn main() -> Result<(), std::io::Error> {
         .try_init()
         .expect("Failed to initialize logger");
 
-    // Read API key, model and persona from environment variables
     let anthropic_api_key =
         std::env::var("ANTHROPIC_API_KEY").expect("ANTHROPIC_API_KEY is not set");
-    let model = std::env::var("CLAUDE_MODEL").unwrap_or("claude-3-haiku-20240229".to_string());
+    let model = std::env::var("CLAUDE_MODEL").unwrap_or("claude-3-5-haiku-latest".to_string());
 
-    // Allow user to set a custom system prompt via environment variable
     let default_system_prompt = "You are a helpful assistant.".to_string();
     let system_prompt = std::env::var("CLAUDE_SYSTEM_PROMPT").unwrap_or(default_system_prompt);
 
-    // Display predefined personas that users can choose with --persona flag
     let persona = match std::env::var("CLAUDE_PERSONA").ok().as_deref() {
         Some("engineer") => "You are an excellent software engineer.".to_string(),
         Some("writer") => "You are a creative writer with excellent language skills.".to_string(),
@@ -46,59 +44,79 @@ async fn main() -> Result<(), std::io::Error> {
         None => system_prompt,
     };
 
-    print!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
-    println!("    {}\n", "How can I help you today?".bold());
-
-    let mut task_description = String::new();
-    std::io::stdin()
-        .read_line(&mut task_description)
-        .expect("Failed to read line");
-    let task_description = task_description.trim().to_string();
-
-    if task_description.is_empty() {
-        println!("{} {}", ">>>".red(), "[Error]:".red().bold());
-        println!(
-            "    {}",
-            "I need a task description to get started. Please try again.".bright_white()
-        );
-        std::process::exit(1);
-    }
-
     let anthropic_client =
         AnthropicClient::new::<MessageError>(anthropic_api_key, "2023-06-01").unwrap();
 
-    let body = CreateMessageParams::new(RequiredMessageParams {
-        model: model,
-        messages: vec![Message::new_text(Role::User, task_description)],
-        max_tokens: 1024,
-    })
-    .with_stream(true)
-    .with_system(persona.to_string());
+    let mut messages = Vec::new();
 
-    println!(
-        "\n{} {}",
-        ">>>".bright_blue(),
-        "[Assistant]:".green().bold()
-    );
+    print!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
+    println!("    {}\n", "How can I help you today?".bold());
 
-    match anthropic_client.create_message_streaming(&body).await {
-        Ok(mut stream) => {
-            while let Some(result) = stream.next().await {
-                match result {
-                    Ok(event) => {
-                        if let StreamEvent::ContentBlockDelta { index: _, delta } = event {
-                            if let ContentBlockDelta::TextDelta { text } = delta {
-                                print!("{}", text);
+    loop {
+        let mut user_input = String::new();
+        std::io::stdin()
+            .read_line(&mut user_input)
+            .expect("Failed to read line");
+
+        let user_input = user_input.trim().to_string();
+
+        if user_input.eq_ignore_ascii_case("exit")
+            || user_input.eq_ignore_ascii_case("quit")
+            || user_input.is_empty()
+        {
+            println!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
+            println!("    {}", "Goodbye! Have a great day!".bright_white());
+            break;
+        }
+
+        messages.push(Message::new_text(Role::User, user_input));
+
+        let body = CreateMessageParams::new(RequiredMessageParams {
+            model: model.clone(),
+            messages: messages.clone(),
+            max_tokens: 1024,
+        })
+        .with_stream(true)
+        .with_system(persona.clone());
+
+        println!(
+            "\n{} {}",
+            ">>>".bright_blue(),
+            "[Assistant]:".green().bold()
+        );
+
+        let mut assistant_response = String::new();
+        match anthropic_client.create_message_streaming(&body).await {
+            Ok(mut stream) => {
+                while let Some(result) = stream.next().await {
+                    match result {
+                        Ok(event) => {
+                            if let StreamEvent::ContentBlockDelta { index: _, delta } = event {
+                                if let ContentBlockDelta::TextDelta { text } = delta {
+                                    print!("{}", text);
+                                    std::io::stdout().flush().unwrap();
+                                    assistant_response.push_str(&text);
+                                }
                             }
                         }
+                        Err(e) => {
+                            error!("Stream error: {}", e);
+                            println!("\n{} {}", ">>>".red(), "[Error]:".red().bold());
+                            println!("    {}", e.to_string().red());
+                        }
                     }
-                    Err(e) => error!("Stream error: {}", e),
                 }
+                println!("\n"); // 応答後に改行
+            }
+            Err(e) => {
+                error!("API error: {}", e);
+                println!("{} {}", ">>>".red(), "[Error]:".red().bold());
+                println!("    {}", e.to_string().red());
+                continue;
             }
         }
-        Err(e) => {
-            error!("Error: {}", e);
-        }
+
+        messages.push(Message::new_text(Role::Assistant, assistant_response));
     }
 
     Ok(())
