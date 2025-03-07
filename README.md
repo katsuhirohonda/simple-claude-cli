@@ -1,4 +1,4 @@
-# claude-cli
+# simple-claude-cli
 
 A simple command-line interface for interacting with Claude AI models using the Anthropic API.
 
@@ -25,7 +25,7 @@ claude-cli allows you to easily interact with Claude AI directly from your termi
 Install directly from crates.io:
 
 ```bash
-cargo install claude-cli
+cargo install simple-claude-cli
 ```
 
 This will install the `claude` command in your PATH.
@@ -35,7 +35,7 @@ This will install the `claude` command in your PATH.
 Clone the repository and build the project:
 
 ```bash
-git clone https://github.com/katsuhirohonda/claude-cli.git
+git clone https://github.com/katsuhirohonda/simple-claude-cli.git
 cd claude-cli
 cargo build --release
 ```
