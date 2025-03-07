@@ -21,6 +21,11 @@ async fn main() -> Result<(), std::io::Error> {
         .try_init()
         .expect("Failed to initialize logger");
 
+    let anthropic_api_key =
+        std::env::var("ANTHROPIC_API_KEY").expect("ANTHROPIC_API_KEY is not set");
+
+    let model = std::env::var("CLAUDE_MODEL").unwrap_or("claude-3-haiku-20240229".to_string());
+
     print!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
     println!("    {}\n", "How can I help you today?".bold());
 
@@ -39,8 +44,6 @@ async fn main() -> Result<(), std::io::Error> {
         std::process::exit(1);
     }
 
-    let anthropic_api_key =
-        std::env::var("ANTHROPIC_API_KEY").expect("ANTHROPIC_API_KEY is not set");
     let anthropic_client =
         AnthropicClient::new::<MessageError>(anthropic_api_key, "2023-06-01").unwrap();
 
@@ -48,7 +51,7 @@ async fn main() -> Result<(), std::io::Error> {
     let system_message = meta_prompt;
 
     let body = CreateMessageParams::new(RequiredMessageParams {
-        model: "claude-3-5-haiku-20241022".to_string(),
+        model: model,
         messages: vec![Message::new_text(Role::User, task_description)],
         max_tokens: 1024,
     })
