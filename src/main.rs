@@ -21,8 +21,8 @@ async fn main() -> Result<(), std::io::Error> {
         .try_init()
         .expect("Failed to initialize logger");
 
-    println!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
-    println!("    {}", "How can I help you today?".bold());
+    print!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
+    println!("    {}\n", "How can I help you today?".bold());
 
     let mut task_description = String::new();
     std::io::stdin()
@@ -55,7 +55,11 @@ async fn main() -> Result<(), std::io::Error> {
     .with_stream(true)
     .with_system(system_message);
 
-    println!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
+    println!(
+        "\n{} {}",
+        ">>>".bright_blue(),
+        "[Assistant]:".green().bold()
+    );
     match anthropic_client.create_message_streaming(&body).await {
         Ok(mut stream) => {
             while let Some(result) = stream.next().await {
