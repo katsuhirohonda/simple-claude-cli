@@ -11,10 +11,11 @@ simple-claude-cli allows you to easily interact with Claude AI directly from you
 - Real-time streaming of Claude's responses
 - Colored terminal output for better readability
 - Simple, intuitive interface
-- Uses Claude 3 Haiku by default
+- Uses Claude 3.5 Haiku by default
 - Customizable system prompts and predefined personas
 - **Conversation history** - maintains context throughout your session
 - **Multi-line input** - easily input code blocks or longer prompts
+- **Configurable max tokens** - control response length
 
 ## Prerequisites
 
@@ -77,6 +78,16 @@ export CLAUDE_MODEL="claude-3-7-sonnet-20250219"
 ```
 
 By default, the application uses `claude-3-5-haiku-latest`.
+
+### Set maximum response length
+
+Control the maximum length of Claude's responses:
+
+```bash
+export CLAUDE_MAX_TOKENS=4000
+```
+
+By default, responses are limited to 1024 tokens.
 
 ### Custom system prompts
 

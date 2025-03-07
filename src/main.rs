@@ -11,6 +11,7 @@ use tracing::error;
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
+    // Initialize logger
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .with_ansi(true)
@@ -22,13 +23,22 @@ async fn main() -> Result<(), std::io::Error> {
         .try_init()
         .expect("Failed to initialize logger");
 
+    // Get environment variables
     let anthropic_api_key =
         std::env::var("ANTHROPIC_API_KEY").expect("ANTHROPIC_API_KEY is not set");
     let model = std::env::var("CLAUDE_MODEL").unwrap_or("claude-3-5-haiku-latest".to_string());
+    
+    // Get max tokens from environment or use default
+    let max_tokens = std::env::var("CLAUDE_MAX_TOKENS")
+        .ok()
+        .and_then(|s| s.parse::<u32>().ok())
+        .unwrap_or(1024);
 
+    // Set up system prompt
     let default_system_prompt = "You are a helpful assistant.".to_string();
     let system_prompt = std::env::var("CLAUDE_SYSTEM_PROMPT").unwrap_or(default_system_prompt);
 
+    // Configure persona based on environment variable
     let persona = match std::env::var("CLAUDE_PERSONA").ok().as_deref() {
         Some("engineer") => "You are an excellent software engineer.".to_string(),
         Some("writer") => "You are a creative writer with excellent language skills.".to_string(),
@@ -44,21 +54,25 @@ async fn main() -> Result<(), std::io::Error> {
         None => system_prompt,
     };
 
+    // Initialize Anthropic client
     let anthropic_client =
         AnthropicClient::new::<MessageError>(anthropic_api_key, "2023-06-01").unwrap();
 
+    // Initialize message history
     let mut messages = Vec::new();
 
+    // Display welcome message and instructions
     print!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
     println!("    {}\n", "How can I help you today?".bold());
     println!("    {}\n", "(If you want to input multiple lines, input the line and press Enter, and if you want to end, input \"///\" and press Enter.)".dimmed());
 
+    // Main conversation loop
     loop {
         print!("{} ", ">>>".bright_blue());
         print!("{} ", "[User]:".green().bold());
         std::io::stdout().flush().unwrap();
 
-        // enable multiple lines input
+        // Enable multiple lines input
         let mut user_input = String::new();
         let mut current_line = String::new();
 
@@ -70,12 +84,12 @@ async fn main() -> Result<(), std::io::Error> {
 
             let trimmed = current_line.trim();
 
-            // end input signal (///)
+            // End input signal (///)
             if trimmed == "///" {
                 break;
             }
 
-            // end input signal (exit, quit, empty)
+            // End conversation commands (exit, quit, empty)
             if user_input.is_empty()
                 && (trimmed.eq_ignore_ascii_case("exit")
                     || trimmed.eq_ignore_ascii_case("quit")
@@ -86,11 +100,11 @@ async fn main() -> Result<(), std::io::Error> {
                 return Ok(());
             }
 
-            // accumulate input
+            // Accumulate input
             user_input.push_str(trimmed);
             user_input.push('\n');
 
-            // next line input prompt (add indent)
+            // Next line input prompt (add indent)
             if user_input.len() > 0 {
                 print!("    ");
                 std::io::stdout().flush().unwrap();
@@ -103,22 +117,26 @@ async fn main() -> Result<(), std::io::Error> {
             continue;
         }
 
+        // Add user message to history
         messages.push(Message::new_text(Role::User, user_input));
 
+        // Create API request
         let body = CreateMessageParams::new(RequiredMessageParams {
             model: model.clone(),
             messages: messages.clone(),
-            max_tokens: 1024,
+            max_tokens: max_tokens,
         })
         .with_stream(true)
         .with_system(persona.clone());
 
+        // Display assistant response prompt
         println!(
             "\n{} {}",
             ">>>".bright_blue(),
             "[Assistant]:".green().bold()
         );
 
+        // Process streaming response
         let mut assistant_response = String::new();
         match anthropic_client.create_message_streaming(&body).await {
             Ok(mut stream) => {
@@ -140,7 +158,7 @@ async fn main() -> Result<(), std::io::Error> {
                         }
                     }
                 }
-                println!("\n"); // 応答後に改行
+                println!("\n"); // Add newline after response
             }
             Err(e) => {
                 error!("API error: {}", e);
@@ -150,6 +168,7 @@ async fn main() -> Result<(), std::io::Error> {
             }
         }
 
+        // Add assistant response to history
         messages.push(Message::new_text(Role::Assistant, assistant_response));
     }
 }
