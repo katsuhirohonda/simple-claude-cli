@@ -119,7 +119,21 @@ You can also set a custom persona directly:
 export CLAUDE_PERSONA="You are a financial advisor specializing in retirement planning."
 ```
 
-If neither `CLAUDE_PERSONA` nor `CLAUDE_SYSTEM_PROMPT` is set, Claude will use a default helpful assistant prompt.
+### Priority between CLAUDE_PERSONA and CLAUDE_SYSTEM_PROMPT
+
+When configuring Claude's behavior:
+
+- If only `CLAUDE_SYSTEM_PROMPT` is set, it will be used as the system prompt.
+- If only `CLAUDE_PERSONA` is set, it will be used as the system prompt.
+- If both `CLAUDE_PERSONA` and `CLAUDE_SYSTEM_PROMPT` are set, `CLAUDE_PERSONA` takes precedence and `CLAUDE_SYSTEM_PROMPT` is ignored.
+- If neither is set, Claude will use the default "You are a helpful assistant." prompt.
+
+For example, if you set:
+```bash
+export CLAUDE_SYSTEM_PROMPT="You are a cybersecurity expert."
+export CLAUDE_PERSONA="engineer"
+```
+Claude will use "You are an excellent software engineer." as the system prompt, ignoring the cybersecurity expert setting.
 
 ## Dependencies
 
