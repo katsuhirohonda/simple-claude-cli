@@ -20,13 +20,27 @@ claude-cli allows you to easily interact with Claude AI directly from your termi
 
 ## Installation
 
+### From crates.io
+
+Install directly from crates.io:
+
+```bash
+cargo install claude-cli
+```
+
+This will install the `claude` command in your PATH.
+
+### From Source
+
 Clone the repository and build the project:
 
 ```bash
-git clone https://github.com/yourusername/claude-cli.git
+git clone https://github.com/katsuhirohonda/claude-cli.git
 cd claude-cli
 cargo build --release
 ```
+
+The compiled binary will be available at `target/release/claude`.
 
 ## Usage
 
@@ -39,7 +53,7 @@ export ANTHROPIC_API_KEY=your_api_key_here
 2. Run the application:
 
 ```bash
-cargo run
+claude
 ```
 
 3. Enter your question or prompt when prompted.
