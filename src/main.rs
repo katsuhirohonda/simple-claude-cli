@@ -22,7 +22,7 @@ async fn main() -> Result<(), std::io::Error> {
         .expect("Failed to initialize logger");
 
     println!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
-    println!("    {}", "How can I help you today? If your task includes !!, it means you need to search similar tasks from the past.".bright_white());
+    println!("    {}", "How can I help you today?".bold());
 
     let mut task_description = String::new();
     std::io::stdin()

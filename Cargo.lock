@@ -130,6 +130,7 @@ dependencies = [
  "anthropic-ai-sdk",
  "colored",
  "dotenv",
+ "futures-util",
  "regex",
  "reqwest",
  "serde",
