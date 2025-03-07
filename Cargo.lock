@@ -124,18 +124,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
-name = "claude-cli"
-version = "0.1.0"
-dependencies = [
- "anthropic-ai-sdk",
- "colored",
- "futures-util",
- "tokio",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "colored"
 version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1223,6 +1211,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a9e9e0b4211b72e7b8b6e85c807d36c212bdb33ea8587f7569562a84df5465b1"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "simple-claude-cli"
+version = "0.0.1"
+dependencies = [
+ "anthropic-ai-sdk",
+ "colored",
+ "futures-util",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
