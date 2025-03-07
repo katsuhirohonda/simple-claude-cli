@@ -7,7 +7,7 @@ use anthropic_ai_sdk::types::message::{
 use colored::*;
 use futures_util::StreamExt;
 use std::io::Write;
-use tracing::{error, info};
+use tracing::error;
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
@@ -51,26 +51,56 @@ async fn main() -> Result<(), std::io::Error> {
 
     print!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
     println!("    {}\n", "How can I help you today?".bold());
+    println!("    {}\n", "(If you want to input multiple lines, input the line and press Enter, and if you want to end, input \"///\" and press Enter.)".dimmed());
 
     loop {
         print!("{} ", ">>>".bright_blue());
         print!("{} ", "[User]:".green().bold());
-        std::io::stdout().flush().unwrap(); // 重要：バッファをフラッシュして表示を確実にする
+        std::io::stdout().flush().unwrap();
 
+        // enable multiple lines input
         let mut user_input = String::new();
-        std::io::stdin()
-            .read_line(&mut user_input)
-            .expect("Failed to read line");
+        let mut current_line = String::new();
+
+        loop {
+            current_line.clear();
+            std::io::stdin()
+                .read_line(&mut current_line)
+                .expect("Failed to read line");
+
+            let trimmed = current_line.trim();
+
+            // end input signal (///)
+            if trimmed == "///" {
+                break;
+            }
+
+            // end input signal (exit, quit, empty)
+            if user_input.is_empty()
+                && (trimmed.eq_ignore_ascii_case("exit")
+                    || trimmed.eq_ignore_ascii_case("quit")
+                    || trimmed.is_empty())
+            {
+                println!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
+                println!("    {}", "Goodbye! Have a great day!".bright_white());
+                return Ok(());
+            }
+
+            // accumulate input
+            user_input.push_str(trimmed);
+            user_input.push('\n');
+
+            // next line input prompt (add indent)
+            if user_input.len() > 0 {
+                print!("    ");
+                std::io::stdout().flush().unwrap();
+            }
+        }
 
         let user_input = user_input.trim().to_string();
 
-        if user_input.eq_ignore_ascii_case("exit")
-            || user_input.eq_ignore_ascii_case("quit")
-            || user_input.is_empty()
-        {
-            println!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
-            println!("    {}", "Goodbye! Have a great day!".bright_white());
-            break;
+        if user_input.is_empty() {
+            continue;
         }
 
         messages.push(Message::new_text(Role::User, user_input));
@@ -122,6 +152,4 @@ async fn main() -> Result<(), std::io::Error> {
 
         messages.push(Message::new_text(Role::Assistant, assistant_response));
     }
-
-    Ok(())
 }

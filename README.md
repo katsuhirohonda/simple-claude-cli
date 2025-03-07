@@ -14,6 +14,7 @@ simple-claude-cli allows you to easily interact with Claude AI directly from you
 - Uses Claude 3 Haiku by default
 - Customizable system prompts and predefined personas
 - **Conversation history** - maintains context throughout your session
+- **Multi-line input** - easily input code blocks or longer prompts
 
 ## Prerequisites
 
@@ -58,7 +59,10 @@ export ANTHROPIC_API_KEY=your_api_key_here
 claude
 ```
 
-3. Enter your questions or prompts as in a normal conversation.
+3. Enter your questions or prompts. For multi-line input:
+   - Type each line followed by Enter
+   - Add the termination marker `///` on a new line to submit your full message
+   - For code blocks or longer text, this allows proper formatting
 
 4. Type `exit`, `quit`, or press Enter on an empty line to end the conversation.
 
