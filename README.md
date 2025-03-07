@@ -4,14 +4,15 @@ A simple command-line interface for interacting with Claude AI models using the 
 
 ## Overview
 
-claude-cli allows you to easily interact with Claude AI directly from your terminal. It uses the official Anthropic AI SDK to connect to Claude's API and stream responses in real-time.
+simple-claude-cli allows you to easily interact with Claude AI directly from your terminal. It uses the official Anthropic AI SDK to connect to Claude's API and stream responses in real-time.
 
 ## Features
 
 - Real-time streaming of Claude's responses
 - Colored terminal output for better readability
 - Simple, intuitive interface
-- Uses Claude 3.5 Haiku by default
+- Uses Claude 3 Haiku by default
+- Customizable system prompts and predefined personas
 
 ## Prerequisites
 
@@ -36,7 +37,7 @@ Clone the repository and build the project:
 
 ```bash
 git clone https://github.com/katsuhirohonda/simple-claude-cli.git
-cd claude-cli
+cd simple-claude-cli
 cargo build --release
 ```
 
@@ -60,7 +61,47 @@ claude
 
 ## Configuration
 
-The application uses Claude 3.5 Haiku by default. To change the model or other parameters, you can modify the `src/main.rs` file.
+You can customize Claude's behavior using environment variables:
+
+### Change the Claude model
+
+```bash
+export CLAUDE_MODEL="claude-3-opus-20240229"
+```
+
+By default, the application uses `claude-3-haiku-20240229`.
+
+### Custom system prompts
+
+You can set a custom system prompt:
+
+```bash
+export CLAUDE_SYSTEM_PROMPT="You are a cybersecurity expert focused on threat analysis."
+```
+
+### Predefined personas
+
+Choose from several predefined personas:
+
+```bash
+export CLAUDE_PERSONA="engineer"  # Software engineering expert
+```
+
+Available personas:
+- `engineer` - Software engineering expert
+- `writer` - Creative writer with excellent language skills
+- `scientist` - Scientist with expertise in various fields
+- `teacher` - Patient teacher who explains concepts clearly
+- `chef` - Professional chef with culinary knowledge
+- `therapist` - Compassionate therapist who listens carefully
+
+You can also set a custom persona directly:
+
+```bash
+export CLAUDE_PERSONA="You are a financial advisor specializing in retirement planning."
+```
+
+If neither `CLAUDE_PERSONA` nor `CLAUDE_SYSTEM_PROMPT` is set, Claude will use a default helpful assistant prompt.
 
 ## Dependencies
 
