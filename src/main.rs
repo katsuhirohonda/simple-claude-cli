@@ -1,12 +1,13 @@
 use anthropic_ai_sdk::clients::AnthropicClient;
+use anthropic_ai_sdk::types::message::StreamEvent;
 use anthropic_ai_sdk::types::message::{
-    CreateMessageParams, Message, MessageClient, MessageError, RequiredMessageParams, Role, Tool,
+    ContentBlockDelta, CreateMessageParams, Message, MessageClient, MessageError,
+    RequiredMessageParams, Role,
 };
 use colored::*;
 use futures_util::StreamExt;
-use tracing::{error, info};
+use tracing::error;
 
-///
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
     tracing_subscriber::fmt()
@@ -43,45 +44,29 @@ async fn main() -> Result<(), std::io::Error> {
     let anthropic_client =
         AnthropicClient::new::<MessageError>(anthropic_api_key, "2023-06-01").unwrap();
 
-    let meta_prompt = format!(
-        "You are an excellent software engineer.\n\
-            There are four available reasoning methods:\n\
-            1. Chain-of-Thought (CoT): Generate answers by thinking step by step.\n\
-            2. Automatic Chain-of-Thought (Auto-CoT): The model explores effective reasoning paths on its own.\n\
-            3. Self-Consistency: Generate multiple reasoning paths and choose the most consistent answer by majority vote.\n\
-            4. Tree-of-Thought (ToT): Consider multiple approaches in parallel and derive the optimal solution.\n\n\
-            First, determine which reasoning method is most appropriate and briefly explain why.\n\
-            If there are past task execution procedures that are similar to the current problem, please analyze them before starting the task.\n\
-            Then, considering both your chosen reasoning method and past task execution procedures, address the problem comprehensively.",
-    );
-
-    let tool_notes = "Important notes regarding tool usage:\n\
-        1. Avoid using the same tool consecutively.\n\
-        2. Prioritize tools suggested by the user.\n\
-        3. Before using each tool, evaluate whether it is truly necessary.";
-
-    let system_message = format!("{}\n{}", meta_prompt, tool_notes);
-
-    let initial_prompt = &format!(
-        "{:?} Please consider and execute the next action.",
-        task_description
-    );
+    let meta_prompt = format!("You are an excellent software engineer.");
+    let system_message = meta_prompt;
 
     let body = CreateMessageParams::new(RequiredMessageParams {
         model: "claude-3-5-haiku-20241022".to_string(),
-        messages: vec![Message::new_text(Role::User, initial_prompt)],
+        messages: vec![Message::new_text(Role::User, task_description)],
         max_tokens: 1024,
     })
     .with_stream(true)
     .with_system(system_message);
 
+    println!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
     match anthropic_client.create_message_streaming(&body).await {
         Ok(mut stream) => {
             while let Some(result) = stream.next().await {
                 match result {
                     Ok(event) => {
-                        info!("Received event: {:?}", event);
-                        println!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
+                        if let StreamEvent::ContentBlockDelta { index: _, delta } = event {
+                            //info!("Received event: {:?}", event);
+                            if let ContentBlockDelta::TextDelta { text } = delta {
+                                print!("{}", text);
+                            }
+                        }
                     }
                     Err(e) => error!("Stream error: {}", e),
                 }
