@@ -27,7 +27,7 @@ async fn main() -> Result<(), std::io::Error> {
     let anthropic_api_key =
         std::env::var("ANTHROPIC_API_KEY").expect("ANTHROPIC_API_KEY is not set");
     let model = std::env::var("CLAUDE_MODEL").unwrap_or("claude-3-5-haiku-latest".to_string());
-    
+
     // Get max tokens from environment or use default
     let max_tokens = std::env::var("CLAUDE_MAX_TOKENS")
         .ok()
@@ -64,8 +64,20 @@ async fn main() -> Result<(), std::io::Error> {
     // Display welcome message and instructions
     print!("{} {}", ">>>".bright_blue(), "[Assistant]:".green().bold());
     println!("    {}\n", "How can I help you today?".bold());
-    println!("    {}\n", "(If you want to input multiple lines, input the line and press Enter, and if you want to end, input \"///\" and press Enter.)".dimmed());
-
+    println!("    {}", "(Instructions:)".dimmed());
+    println!("    {}", "1. Type your message and press Enter".dimmed());
+    println!(
+        "    {}",
+        "2. For multiple lines, keep typing and pressing Enter".dimmed()
+    );
+    println!(
+        "    {}",
+        "3. Type \"///\" and press Enter when done with your message".dimmed()
+    );
+    println!(
+        "    {}\n",
+        "4. Type `exit`, `quit`, or press Enter on an empty line to end the conversation".dimmed()
+    );
     // Main conversation loop
     loop {
         print!("{} ", ">>>".bright_blue());
