@@ -53,6 +53,10 @@ async fn main() -> Result<(), std::io::Error> {
     println!("    {}\n", "How can I help you today?".bold());
 
     loop {
+        print!("{} ", ">>>".bright_blue());
+        print!("{} ", "[User]:".green().bold());
+        std::io::stdout().flush().unwrap(); // 重要：バッファをフラッシュして表示を確実にする
+
         let mut user_input = String::new();
         std::io::stdin()
             .read_line(&mut user_input)
