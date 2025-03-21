@@ -1,6 +1,6 @@
 [package]
 name = "simple-claude-cli"
-version = "0.0.7"
+version = "0.0.8"
 edition = "2024"
 authors = ["Katsuhiro Honda<freewave3@gmail.com>"]
 description = "A simple command-line interface for interacting with Claude AI models"
