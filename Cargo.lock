@@ -28,9 +28,9 @@ dependencies = [
 
 [[package]]
 name = "anthropic-ai-sdk"
-version = "0.1.4"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b39b2d617d18412aec77154941f4292ec645db8d5f6acb5df2173bed4efcc2c"
+checksum = "2c0cefc8bb4a13c5457039fcee4f4210117974a01651246ebf2266e9fe68ef25"
 dependencies = [
  "async-trait",
  "eventsource-stream",
@@ -1215,7 +1215,7 @@ dependencies = [
 
 [[package]]
 name = "simple-claude-cli"
-version = "0.0.8"
+version = "0.0.9"
 dependencies = [
  "anthropic-ai-sdk",
  "colored",

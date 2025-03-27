@@ -1,6 +1,6 @@
 [package]
 name = "simple-claude-cli"
-version = "0.0.8"
+version = "0.0.9"
 edition = "2024"
 authors = ["Katsuhiro Honda<freewave3@gmail.com>"]
 description = "A simple command-line interface for interacting with Claude AI models"
@@ -13,7 +13,7 @@ categories = ["command-line-utilities", "api-bindings"]
 tokio = { version = "1.43.0", features = ["full"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] } 
-anthropic-ai-sdk = "0.1.4"
+anthropic-ai-sdk = "0.2.0"
 colored = "3.0.0"
 futures-util = "0.3.31"
 
